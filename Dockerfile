@@ -8,5 +8,5 @@ RUN go-wrapper download \
     && go-wrapper install
 
 CMD ["go-wrapper", "run"]
-EXPOSE 9998
+EXPOSE 9995
 ENV TZ America/Chicago
