@@ -90,9 +90,18 @@ func RunLocalServer(c *cli.Context) error {
 		Key:       c.String("image-key"),
 		LocalPath: savePath,
 	}
+
+	// cors middleware
+	crs := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders: []string{"Link"},
+	})
 	// router
 	r := chi.NewRouter()
 	r.Use(lmw.Middleware)
+	r.Use(crs.Handler)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
