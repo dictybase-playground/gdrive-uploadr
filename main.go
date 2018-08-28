@@ -195,6 +195,7 @@ func main() {
 			Name:   "run-s3",
 			Usage:  "starts the server for uploading image to s3 storage",
 			Action: commands.RunS3Server,
+			Before: validate.ValidateS3Server,
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:   "app-log",
@@ -250,19 +251,16 @@ func main() {
 					EnvVar: "MINIO_SERVICE_PORT",
 				},
 				cli.StringFlag{
-					Name:  "s3-bucket",
+					Name:  "bucket",
 					Usage: "S3 bucket where the image will be saved",
-					Value: "content",
 				},
 				cli.StringFlag{
-					Name:   "access-key, akey",
-					EnvVar: "S3_ACCESS_KEY",
-					Usage:  "access key for S3 server, required based on command run",
+					Name:  "access-key, akey",
+					Usage: "access key for S3 server, required based on command run",
 				},
 				cli.StringFlag{
-					Name:   "secret-key, skey",
-					EnvVar: "S3_SECRET_KEY",
-					Usage:  "secret key for S3 server, required based on command run",
+					Name:  "secret-key, skey",
+					Usage: "secret key for S3 server, required based on command run",
 				},
 				cli.StringFlag{
 					Name:  "log-file",
