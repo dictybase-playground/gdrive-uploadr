@@ -269,10 +269,9 @@ func main() {
 					Usage: "name of log file",
 				},
 				cli.StringFlag{
-					Name:   "log-fmt",
-					Usage:  "Format of the web log(optional), default is json",
-					Value:  "json",
-					EnvVar: "WEB_LOG_FMT",
+					Name:  "log-fmt",
+					Usage: "Format of the web log(optional), default is json",
+					Value: "json",
 				},
 			},
 		},
