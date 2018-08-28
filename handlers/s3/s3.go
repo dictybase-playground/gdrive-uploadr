@@ -22,6 +22,7 @@ type ImageHandler struct {
 	Key    string
 	Bucket string
 	Client *minio.Client
+	Folder string
 }
 
 // Create is a http.Handler method for handling POST requests
@@ -41,7 +42,7 @@ func (img *ImageHandler) Create(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 	_, err = img.Client.PutObject(
 		img.Bucket,
-		fmt.Sprintf("%s/%s", chi.URLParam(r, "year"), strings.ToLower(header.Filename)),
+		fmt.Sprintf("%s/%s/%s", chi.URLParam(r, "year"), img.Folder, strings.ToLower(header.Filename)),
 		file,
 		header.Size,
 		minio.PutObjectOptions{ContentType: detectContentType(header.Filename)},

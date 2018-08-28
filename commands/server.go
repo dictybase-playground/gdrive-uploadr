@@ -134,6 +134,7 @@ func RunS3Server(c *cli.Context) error {
 	imgHandler := &s3.ImageHandler{
 		Key:    c.String("image-key"),
 		Bucket: c.String("bucket"),
+		Folder: c.String("subfolder"),
 		Client: s3Client,
 		Logger: appLogger,
 	}

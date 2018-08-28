@@ -273,6 +273,11 @@ func main() {
 					Usage: "Format of the web log(optional), default is json",
 					Value: "json",
 				},
+				cli.StringFlag{
+					Name:  "subfolder,sf",
+					Usage: "Name of the sub-folder where the original images will be uploaded",
+					Value: "original",
+				},
 			},
 		},
 	}
