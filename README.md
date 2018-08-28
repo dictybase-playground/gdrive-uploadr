@@ -74,3 +74,23 @@ USAGE:
 OPTIONS:
    --folder value, -f value  Name of the folder[required] [$FOLDER]
 ```
+```
+NAME:
+   gdrive-uploadr run-gdrive - starts the server for uploading image to google drive
+
+USAGE:
+   gdrive-uploadr run-gdrive [command options] [arguments...]
+
+OPTIONS:
+   --app-log value        Name of the application log file(optional), default goes to stderr [$APP_LOG]
+   --app-log-level value  log level of the application log(optional), default is json (default: "error") [$APP_LOG_LEVEL]
+   --app-log-fmt value    Format of the application log(optional), default is json (default: "json") [$APP_LOG_FMT]
+   --hooks value          hook names for sending log in addition to stderr
+   --slack-channel value  Slack channel where the log will be posted [$SLACK_CHANNEL]
+   --slack-url value      Slack webhook url[required if slack channel is provided] [$SLACK_URL]
+   --web-log value        Name of the web request log file(optional), default goes to stderr [$WEB-LOG]
+   --web-log-fmt value    Format of the web log(optional), default is json (default: "json") [$WEB_LOG_FMT]
+   --port value           port on which the server listen (default: 9998)
+   --image-key value      The name of form key from where the image file will be retrieved from the request body (default: "image")
+   --folder-id value      The folder id of gdrive[required] [$FOLDER_ID]
+```
