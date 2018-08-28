@@ -17,7 +17,7 @@ func GetLoggerMiddleware(c *cli.Context) (*loggerMw.Logger, error) {
 	var logger *loggerMw.Logger
 	var w io.Writer
 	if c.IsSet("log-file") {
-		w, err := os.Open(c.String("log-file"))
+		fw, err := os.Open(c.String("log-file"))
 		if err != nil {
 			return logger, fmt.Errorf("could not open log file for writing %s", err)
 		}
