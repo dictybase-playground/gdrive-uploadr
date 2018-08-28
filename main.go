@@ -191,6 +191,81 @@ func main() {
 				},
 			},
 		},
+		{
+			Name:   "run-s3",
+			Usage:  "starts the server for uploading image to s3 storage",
+			Action: commands.RunS3Server,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "app-log",
+					Usage:  "Name of the application log file(optional), default goes to stderr",
+					EnvVar: "APP_LOG",
+				},
+				cli.StringFlag{
+					Name:   "app-log-level",
+					Usage:  "log level of the application log(optional), default is json",
+					Value:  "error",
+					EnvVar: "APP_LOG_LEVEL",
+				},
+				cli.StringFlag{
+					Name:   "app-log-fmt",
+					Usage:  "Format of the application log(optional), default is json",
+					Value:  "json",
+					EnvVar: "APP_LOG_FMT",
+				},
+				cli.StringSliceFlag{
+					Name:  "hooks",
+					Usage: "hook names for sending log in addition to stderr",
+					Value: &cli.StringSlice{},
+				},
+				cli.StringFlag{
+					Name:   "slack-channel",
+					EnvVar: "SLACK_CHANNEL",
+					Usage:  "Slack channel where the log will be posted",
+				},
+				cli.StringFlag{
+					Name:   "slack-url",
+					EnvVar: "SLACK_URL",
+					Usage:  "Slack webhook url[required if slack channel is provided]",
+				},
+				cli.IntFlag{
+					Name:  "port",
+					Usage: "port on which the server listen",
+					Value: 9998,
+				},
+				cli.StringFlag{
+					Name:  "image-key",
+					Usage: "The name of form key from where the image file will be retrieved from the request body",
+					Value: "image",
+				},
+				cli.StringFlag{
+					Name:   "s3-host",
+					Usage:  "S3 server host",
+					EnvVar: "MINIO_SERVICE_HOST",
+					Value:  "minio",
+				},
+				cli.StringFlag{
+					Name:   "s3-port",
+					Usage:  "S3 server port",
+					EnvVar: "MINIO_SERVICE_PORT",
+				},
+				cli.StringFlag{
+					Name:  "s3-bucket",
+					Usage: "S3 bucket where the image will be saved",
+					Value: "content",
+				},
+				cli.StringFlag{
+					Name:   "access-key, akey",
+					EnvVar: "S3_ACCESS_KEY",
+					Usage:  "access key for S3 server, required based on command run",
+				},
+				cli.StringFlag{
+					Name:   "secret-key, skey",
+					EnvVar: "S3_SECRET_KEY",
+					Usage:  "secret key for S3 server, required based on command run",
+				},
+			},
+		},
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
