@@ -42,7 +42,7 @@ func (img *ImageHandler) Create(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 	_, err = img.Client.PutObject(
 		img.Bucket,
-		fmt.Sprintf("%s/%s/%s", chi.URLParam(r, "year"), img.Folder, strings.ToLower(header.Filename)),
+		fmt.Sprintf("images/%s/%s/%s", chi.URLParam(r, "year"), img.Folder, strings.ToLower(header.Filename)),
 		file,
 		header.Size,
 		minio.PutObjectOptions{ContentType: detectContentType(header.Filename)},
