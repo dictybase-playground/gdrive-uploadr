@@ -3,3 +3,4 @@ credentials/
 gdrive-uploadr
 log/
 dist/
+vendor/
