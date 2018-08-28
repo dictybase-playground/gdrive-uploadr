@@ -1,6 +1,8 @@
 package validate
 
 import (
+	"fmt"
+
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -30,6 +32,19 @@ func ValidateGdriveServer(c *cli.Context) error {
 	}
 	if !c.IsSet("folder-id") {
 		return cli.NewExitError("missing folder-id argument", 2)
+	}
+	return nil
+}
+
+// ValidateS3Server validate cmdline arguments of s3-server
+func ValidateS3Server(c *cli.Context) error {
+	for _, p := range []string{"access-key", "secret-key", "bucket"} {
+		if !c.IsSet(p) {
+			return cli.NewExitError(
+				fmt.Sprintf("missing argument %s", p),
+				2,
+			)
+		}
 	}
 	return nil
 }
