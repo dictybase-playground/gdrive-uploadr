@@ -1,8 +1,11 @@
 # gdrive-uploadr
-A server to upload images to google drive folder.   
-There is also a `local` version, it is primarily for testing purpose.
+A server to upload images to 
++ google drive folder.   
++ s3 storage
++ local filesystem
 
 # Usage
+## google drive only
 To use the client, generate the `client secret` as described
 [here](https://developers.google.com/drive/v3/web/quickstart/go). Then run the
 `authorize` subcommand to create a token file for authorizing the client. Then
@@ -26,6 +29,7 @@ COMMANDS:
      shared-gdrive-folder  create read only public gdrive folder
      run-gdrive            starts the server for uploading image to google drive
      run-local             starts the server for uploading image to local storage
+     run-s3                starts the server for uploading image to s3 storage
      help, h               Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
@@ -35,52 +39,34 @@ GLOBAL OPTIONS:
    --version, -v                      print the version
 ```
 
-## Subcommands
-
 ```
 NAME:
-   shared-gdrive-folder - create read only public gdrive folder
+   gdrive-uploadr run-s3 - starts the server for uploading image to s3 storage
 
 USAGE:
-   gdrive-uploadr shared-gdrive-folder [command options] [arguments...]
+   gdrive-uploadr run-s3 [command options] [arguments...]
 
 OPTIONS:
-   --folder value, -f value  Name of the folder[required] [$FOLDER]
+   --app-log value                   Name of the application log file(optional), default goes to stderr [$APP_LOG]
+   --app-log-level value             log level of the application log(optional), default is json (default: "error") [$APP_LOG_LEVEL]
+   --app-log-fmt value               Format of the application log(optional), default is json (default: "json") [$APP_LOG_FMT]
+   --hooks value                     hook names for sending log in addition to stderr
+   --slack-channel value             Slack channel where the log will be posted [$SLACK_CHANNEL]
+   --slack-url value                 Slack webhook url[required if slack channel is provided] [$SLACK_URL]
+   --port value                      port on which the server listen (default: 9998)
+   --image-key value                 The name of form key from where the image file will be retrieved from the request body (default: "image")
+   --s3-host value                   S3 server host (default: "minio") [$MINIO_SERVICE_HOST]
+   --s3-port value                   S3 server port [$MINIO_SERVICE_PORT]
+   --s3-bucket value                 S3 bucket where the image will be saved (default: "content")
+   --access-key value, --akey value  access key for S3 server, required based on command run [$S3_ACCESS_KEY]
+   --secret-key value, --skey value  secret key for S3 server, required based on command run [$S3_SECRET_KEY]
+   --log-file value                  name of log file
+   --log-fmt value                   Format of the web log(optional), default is json (default: "json")
 ```
 
 ```
 NAME:
-   run-gdrive - starts the server for uploading image to google drive
-
-USAGE:
-   gdrive-uploadr run-gdrive [command options] [arguments...]
-
-OPTIONS:
-   --app-log value        Name of the application log file(optional), default goes to stderr [$APP_LOG]
-   --app-log-level value  log level of the application log(optional), default is json (default: "error") [$APP_LOG_LEVEL]
-   --app-log-fmt value    Format of the application log(optional), default is json (default: "json") [$APP_LOG_FMT]
-   --hooks value          hook names for sending log in addition to stderr
-   --slack-channel value  Slack channel where the log will be posted [$SLACK_CHANNEL]
-   --slack-url value      Slack webhook url[required if slack channel is provided] [$SLACK_URL]
-   --web-log value        Name of the web request log file(optional), default goes to stderr [$WEB-LOG]
-   --web-log-fmt value    Format of the web log(optional), default is json (default: "json") [$WEB_LOG_FMT]
-   --port value           port on which the server listen (default: 9998)
-   --image-key value      The name of form key from where the image file will be retrieved from the request body (default: "image")
-   --folder-id value      The folder id of gdrive[required] [$FOLDER_ID]
-```
-
-
-```
-NAME:
-   authorize - authorize gdrive client
-
-USAGE:
-   gdrive-uploadr authorize [arguments...]
-```
-
-```
-NAME:
-   gdrive-folder - create new gdrive folder
+   gdrive-uploadr gdrive-folder - create new gdrive folder
 
 USAGE:
    gdrive-uploadr gdrive-folder [command options] [arguments...]
@@ -88,4 +74,3 @@ USAGE:
 OPTIONS:
    --folder value, -f value  Name of the folder[required] [$FOLDER]
 ```
-
