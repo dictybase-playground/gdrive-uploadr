@@ -152,7 +152,7 @@ func RunS3Server(c *cli.Context) error {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
-	r.Route("/images/{year}", func(r chi.Router) {
+	r.Route("/images/{[0-9]{4}}", func(r chi.Router) {
 		r.Post("/", imgHandler.Create)
 	})
 	fmt.Printf("starting s3 backend server at port %d\n", c.Int("port"))
