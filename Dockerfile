@@ -1,12 +1,23 @@
-FROM golang:1.8.3-alpine3.6
-MAINTAINER Siddhartha Basu<siddhartha-basu@northwestern.edu>
+FROM golang:1.10.4-alpine3.8
+LABEL maintainer="Siddhartha Basu<siddhartha-basu@northwestern.edu>"
 
-RUN apk add --no-cache git
-WORKDIR /go/src/app
-COPY . /go/src/app
-RUN go-wrapper download \
-    && go-wrapper install
+RUN apk add --no-cache git build-base \
+    && go get github.com/golang/dep/cmd/dep
+RUN mkdir -p /go/src/github.com/dictybase-playground/gdrive-uploadr
+WORKDIR /go/src/github.com/dictybase-playground/gdrive-uploadr
+COPY Gopkg.* main.go ./
+ADD apihelpers apihelpers
+ADD auth auth
+ADD commands commands
+ADD handlers handlers
+ADD logger logger
+ADD validate validate
+RUN dep ensure \
+    && go build -o app
 
-CMD ["go-wrapper", "run"]
-EXPOSE 9995
+FROM alpine:3.8
+RUN apk --no-cache add ca-certificates
+COPY --from=0 /go/src/github.com/dictyBase/authserver/app /usr/local/bin/
+ENTRYPOINT ["/usr/local/bin/app"]
 ENV TZ America/Chicago
+
