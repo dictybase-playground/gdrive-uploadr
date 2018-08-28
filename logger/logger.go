@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	loggerMw "github.com/dictyBase/go-middlewares/middlewares/logrus"
@@ -14,22 +15,20 @@ import (
 // GetLoggerMiddleware gets a net/http compatible instance of logrus
 func GetLoggerMiddleware(c *cli.Context) (*loggerMw.Logger, error) {
 	var logger *loggerMw.Logger
-	if c.IsSet("web-log") {
-		w, err := os.Open(c.String("web-log"))
+	var w io.Writer
+	if c.IsSet("log-file") {
+		w, err := os.Open(c.String("log-file"))
 		if err != nil {
 			return logger, fmt.Errorf("could not open log file for writing %s", err)
 		}
-		if c.String("web-log-format") == "json" {
-			logger = loggerMw.NewJSONFileLogger(w)
-		} else {
-			logger = loggerMw.NewFileLogger(w)
-		}
+		w = io.MultiWriter(fw, os.Stderr)
 	} else {
-		if c.String("web-log-format") == "json" {
-			logger = loggerMw.NewJSONLogger()
-		} else {
-			logger = loggerMw.NewLogger()
-		}
+		w = os.Stderr
+	}
+	if c.String("log-format") == "json" {
+		logger = loggerMw.NewJSONFileLogger(w)
+	} else {
+		logger = loggerMw.NewFileLogger(w)
 	}
 	return logger, nil
 }

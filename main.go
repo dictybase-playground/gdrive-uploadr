@@ -264,6 +264,16 @@ func main() {
 					EnvVar: "S3_SECRET_KEY",
 					Usage:  "secret key for S3 server, required based on command run",
 				},
+				cli.StringFlag{
+					Name:  "log-file",
+					Usage: "name of log file",
+				},
+				cli.StringFlag{
+					Name:   "log-fmt",
+					Usage:  "Format of the web log(optional), default is json",
+					Value:  "json",
+					EnvVar: "WEB_LOG_FMT",
+				},
 			},
 		},
 	}
