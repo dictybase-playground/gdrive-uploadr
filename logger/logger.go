@@ -25,7 +25,7 @@ func GetLoggerMiddleware(c *cli.Context) (*loggerMw.Logger, error) {
 	} else {
 		w = os.Stderr
 	}
-	if c.String("log-format") == "json" {
+	if c.String("log-fmt") == "json" {
 		logger = loggerMw.NewJSONFileLogger(w)
 	} else {
 		logger = loggerMw.NewFileLogger(w)
