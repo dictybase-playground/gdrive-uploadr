@@ -17,7 +17,7 @@ RUN dep ensure \
 
 FROM alpine:3.8
 RUN apk --no-cache add ca-certificates
-COPY --from=0 /go/src/github.com/dictyBase/authserver/app /usr/local/bin/
+COPY --from=0 /go/src/github.com/dictybase-playground/gdrive-uploadr/app /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/app"]
 ENV TZ America/Chicago
 
