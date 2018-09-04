@@ -1,11 +1,16 @@
 package s3
 
 import (
+	"bytes"
 	"fmt"
+	"image"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
 
+	"github.com/anthonynsimon/bild/transform"
 	"github.com/dictybase-playground/gdrive-uploadr/apihelpers/apherror"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -40,6 +45,15 @@ func (img *ImageHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
+	thumb, err := generateThumb(file)
+	if err != nil {
+		img.Logger.Error(err)
+		render.Render(
+			w, r,
+			apherror.ErrServer(errors.Wrap(err, "error in generating thumbnail")),
+		)
+		return
+	}
 	_, err = img.Client.PutObject(
 		img.Bucket,
 		fmt.Sprintf("images/%s/%s/%s", chi.URLParam(r, "year"), img.Folder, strings.ToLower(header.Filename)),
@@ -74,4 +88,32 @@ func detectContentType(h string) string {
 		return "application/octet-stream"
 	}
 	return ""
+}
+
+func generateThumb(r io.Reader) (image.Image, error) {
+	var rimg image.Image
+	buff := bytes.NewBuffer(make([]byte, 0))
+	tr := io.TeeReader(r, buff)
+	img, _, err := image.Decode(tr)
+	if err != nil {
+		return rimg, fmt.Errorf("error in decoding image %s", err)
+	}
+	nr := ioutil.NopCloser(buff)
+	defer nr.Close()
+	config, _, err := image.DecodeConfig(nr)
+	if err != nil {
+		return rimg, fmt.Errorf("error in getting config %s", err)
+	}
+	width := 200.0
+	if config.Width <= int(width) {
+		return img, nil
+	}
+	ar := float64(config.Height) / float64(config.Width)
+	height := ar * width
+	return transform.Resize(
+		img,
+		int(width),
+		int(height),
+		transform.Lanczos,
+	), nil
 }
