@@ -132,11 +132,12 @@ func RunS3Server(c *cli.Context) error {
 	}
 	// handler
 	imgHandler := &s3.ImageHandler{
-		Key:    c.String("image-key"),
-		Bucket: c.String("bucket"),
-		Folder: c.String("subfolder"),
-		Client: s3Client,
-		Logger: appLogger,
+		Key:         c.String("image-key"),
+		Bucket:      c.String("bucket"),
+		Folder:      c.String("subfolder"),
+		ThumbFolder: c.String("thumb-folder"),
+		Client:      s3Client,
+		Logger:      appLogger,
 	}
 
 	// cors middleware

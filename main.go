@@ -276,6 +276,11 @@ func main() {
 					Usage: "Name of the sub-folder where the original images will be uploaded",
 					Value: "original",
 				},
+				cli.StringFlag{
+					Name:  "thumb-folder,tf",
+					Usage: "Name of the sub-folder where the thumbnail images will be uploaded",
+					Value: "thumbnail",
+				},
 			},
 		},
 	}
