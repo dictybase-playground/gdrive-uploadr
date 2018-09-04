@@ -48,15 +48,16 @@ func (img *ImageHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	thumb, err := generateThumb(file)
+	treader, err := img.generateThumb(file)
 	if err != nil {
 		img.Logger.Error(err)
 		render.Render(
 			w, r,
-			apherror.ErrServer(errors.Wrap(err, "error in generating thumbnail")),
+			apherror.ErrServer(errors.Wrap(err, "")),
 		)
 		return
 	}
+	// rewind the image file for re-reading after thumbnail creation
 	_, err = file.Seek(0, 0)
 	if err != nil {
 		img.Logger.Errorf("error in seeking original image file %s %s", header.Filename, err)
@@ -68,53 +69,36 @@ func (img *ImageHandler) Create(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	tbuff := bytes.NewBuffer(make([]byte, 0))
-	if err := jpeg.Encode(tbuff, thumb, &jpeg.Options{Quality: 75}); err != nil {
-		img.Logger.Errorf("error in copying thumbnail to buffer %s", err)
-		render.Render(
-			w, r,
-			apherror.ErrServer(
-				errors.Wrapf(err, "error in copying thumbnail to buffer %s", err),
-			),
-		)
-		return
-	}
-	thumbPath := fmt.Sprintf(
-		"images/%s/%s/thumb_%s",
-		chi.URLParam(r, "year"),
-		img.ThumbFolder,
-		strings.ToLower(header.Filename),
-	)
-	_, err = img.Client.PutObject(
-		img.Bucket,
-		thumbPath,
-		tbuff,
-		int64(tbuff.Len()),
-		minio.PutObjectOptions{ContentType: detectContentType(header.Filename)},
-	)
+	year := chi.URLParam(r, "year")
+	origPath, err := img.storeOriginal(file, header, year)
 	if err != nil {
-		img.Logger.Errorf("unable to upload thumbnail %s to s3 object storage %s", header.Filename, err)
 		render.Render(
 			w, r,
-			apherror.ErrServer(
-				errors.Wrapf(err, "unable to upload thumbnail file %s to s3 object storage %s", header.Filename, err),
-			),
+			apherror.ErrServer(errors.Wrap(err, "")),
 		)
 		return
 	}
-	img.Logger.Infof("uploaded file and thumbnail %s to object storage", header.Filename)
+	thumbPath, err := img.storeThumbnail(treader, header, year)
+	if err != nil {
+		render.Render(
+			w, r,
+			apherror.ErrServer(errors.Wrap(err, "")),
+		)
+		return
+	}
+	img.Logger.Infof("uploaded %s file to %s and %s in object storage", header.Filename, origPath, thumbPath)
 	// Open a local file for saving the image content
 	render.NoContent(w, r)
 }
 
-func (img *ImageHandler) storeOriginal(r io.Reader, header *multipart.FileHeader) (string, error) {
+func (img *ImageHandler) storeOriginal(r io.Reader, header *multipart.FileHeader, year string) (string, error) {
 	origPath := fmt.Sprintf(
 		"images/%s/%s/%s",
-		chi.URLParam(r, "year"),
+		year,
 		img.Folder,
 		strings.ToLower(header.Filename),
 	)
-	_, err = img.Client.PutObject(
+	_, err := img.Client.PutObject(
 		img.Bucket,
 		origPath,
 		r,
@@ -127,6 +111,28 @@ func (img *ImageHandler) storeOriginal(r io.Reader, header *multipart.FileHeader
 			fmt.Errorf("unable to upload file %s to s3 object storage %s", header.Filename, err)
 	}
 	return origPath, nil
+}
+
+func (img *ImageHandler) storeThumbnail(r io.Reader, header *multipart.FileHeader, year string) (string, error) {
+	thumbPath := fmt.Sprintf(
+		"images/%s/%s/thumb_%s",
+		year,
+		img.ThumbFolder,
+		strings.ToLower(header.Filename),
+	)
+	_, err := img.Client.PutObject(
+		img.Bucket,
+		thumbPath,
+		r,
+		-1,
+		minio.PutObjectOptions{ContentType: detectContentType(header.Filename)},
+	)
+	if err != nil {
+		img.Logger.Errorf("unable to upload thumbnail %s to s3 object storage %s", header.Filename, err)
+		return thumbPath,
+			errors.Errorf("unable to upload thumbnail file %s to s3 object storage %s", header.Filename, err)
+	}
+	return thumbPath, nil
 }
 
 func detectContentType(h string) string {
@@ -142,30 +148,37 @@ func detectContentType(h string) string {
 	return ""
 }
 
-func generateThumb(r io.Reader) (image.Image, error) {
-	var rimg image.Image
+func (img *ImageHandler) generateThumb(r io.Reader) (io.Reader, error) {
 	buff := bytes.NewBuffer(make([]byte, 0))
 	tr := io.TeeReader(r, buff)
-	img, _, err := image.Decode(tr)
+	dimg, _, err := image.Decode(tr)
 	if err != nil {
-		return rimg, fmt.Errorf("error in decoding image %s", err)
+		return buff, errors.Errorf("error in decoding image %s", err)
 	}
 	nr := ioutil.NopCloser(buff)
 	defer nr.Close()
 	config, _, err := image.DecodeConfig(nr)
 	if err != nil {
-		return rimg, fmt.Errorf("error in getting config %s", err)
+		return buff, errors.Errorf("error in getting config %s", err)
 	}
+	var thumbImg image.Image
 	width := 200.0
 	if config.Width <= int(width) {
-		return img, nil
+		thumbImg = dimg
+	} else {
+		ar := float64(config.Height) / float64(config.Width)
+		height := ar * width
+		thumbImg = transform.Resize(
+			dimg,
+			int(width),
+			int(height),
+			transform.Lanczos,
+		)
 	}
-	ar := float64(config.Height) / float64(config.Width)
-	height := ar * width
-	return transform.Resize(
-		img,
-		int(width),
-		int(height),
-		transform.Lanczos,
-	), nil
+	tbuff := bytes.NewBuffer(make([]byte, 0))
+	if err := jpeg.Encode(tbuff, thumbImg, &jpeg.Options{Quality: 75}); err != nil {
+		img.Logger.Errorf("error in copying thumbnail to buffer %s", err)
+		return tbuff, errors.Errorf("error in copying thumbnail to buffer %s", err)
+	}
+	return tbuff, nil
 }
