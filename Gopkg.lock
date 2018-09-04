@@ -10,6 +10,19 @@
   version = "v0.26.0"
 
 [[projects]]
+  digest = "1:2c2c274e3804163c700896f91c47bf13b15200fd787431284c6f2ca9c5824a11"
+  name = "github.com/anthonynsimon/bild"
+  packages = [
+    "clone",
+    "math/f64",
+    "parallel",
+    "transform",
+  ]
+  pruneopts = "UT"
+  revision = "35fd1904d43f809ded0959922164885e25577aa2"
+  version = "v0.10.0"
+
+[[projects]]
   branch = "master"
   digest = "1:e23f097a2cb616eb34605f4c5640fce3bd41c54cbdb531b85acb0bef1d8dd53a"
   name = "github.com/dictyBase/go-middlewares"
@@ -241,6 +254,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/anthonynsimon/bild/transform",
     "github.com/dictyBase/go-middlewares/middlewares/logrus",
     "github.com/go-chi/chi",
     "github.com/go-chi/chi/middleware",
