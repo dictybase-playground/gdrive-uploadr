@@ -38,7 +38,7 @@ func ValidateGdriveServer(c *cli.Context) error {
 
 // ValidateS3Server validate cmdline arguments of s3-server
 func ValidateS3Server(c *cli.Context) error {
-	for _, p := range []string{"access-key", "secret-key", "bucket"} {
+	for _, p := range []string{"access-key", "secret-key", "bucket", "redis-master", "redis-slave"} {
 		if !c.IsSet(p) {
 			return cli.NewExitError(
 				fmt.Sprintf("missing argument %s", p),
