@@ -281,6 +281,28 @@ func main() {
 					Usage: "Name of the sub-folder where the thumbnail images will be uploaded",
 					Value: "thumbnail",
 				},
+				cli.StringFlag{
+					Name:   "redis-master",
+					Usage:  "redis master host",
+					Value:  "redis-master",
+					EnvVar: "REDIS_MASTER_SERVICE_HOST",
+				},
+				cli.StringFlag{
+					Name:   "redis-master-port",
+					Usage:  "redis master port",
+					EnvVar: "REDIS_MASTER_SERVICE_PORT",
+				},
+				cli.StringFlag{
+					Name:   "redis-slave",
+					Usage:  "redis slave host",
+					Value:  "redis-slave",
+					EnvVar: "REDIS_SLAVE_SERVICE_HOST",
+				},
+				cli.StringFlag{
+					Name:   "redis-slave-port",
+					Usage:  "redis slave host",
+					EnvVar: "REDIS_SLAVE_SERVICE_PORT",
+				},
 			},
 		},
 	}
