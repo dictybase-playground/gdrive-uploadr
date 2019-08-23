@@ -1,3 +1,4 @@
+name: learn github action
 on: [issues,issue_comment]
 jobs:
   one:
