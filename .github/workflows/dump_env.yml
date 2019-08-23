@@ -1,12 +1,4 @@
 on: [issues,issue_comment]
-on:
-  issues:
-    branches:
-        - develop
-  issue_comment:
-    branches:
-        - develop
-
 jobs:
   one:
     runs-on: ubuntu-16.04
