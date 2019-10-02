@@ -7,4 +7,4 @@ jobs:
     - name: check out code
       uses: actions/checkout@v1
     - name: print git branch
-      run: git symbolic-ref --short HEAD
+      run: echo ${{ github.ref }}
