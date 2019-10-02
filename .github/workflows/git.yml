@@ -7,4 +7,4 @@ jobs:
     - name: check out code
       uses: actions/checkout@v1
     - name: print git branch
-      run: echo ${{ github.ref }}
+      run: echo ${{ github.ref }} | sed -E 's/refs\/(heads|tags)\///'
