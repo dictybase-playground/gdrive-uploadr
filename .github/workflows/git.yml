@@ -1,14 +1,10 @@
-name: CI
-
+name: git check
 on: [push]
-
 jobs:
-  build:
+  check:
     runs-on: ubuntu-18.04
     steps:
     - name: check out code
       uses: actions/checkout@v1
-    - name: Run git version
-      run: git version
     - name: print git branch
-      run: git rev-parse --abbrev-ref HEAD
+      run: git symbolic-ref --short HEAD
